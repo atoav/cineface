@@ -186,7 +186,7 @@ class Output():
     """
     Represents a single RME Totalmix Output channel
     """
-    def __init__(self, name: str, address: str, stereo=False, button=None):
+    def __init__(self, name: str, address: str, stereo=False, gpio_button=None, gpio_led=None):
         # Name is an arbitrary string for reference
         self.name = name
 
@@ -202,8 +202,11 @@ class Output():
         # Outputs can be either Stereo or Mono
         self.stereo = stereo
 
-        # Button stores the bin of the corresponding button
-        self.button = button
+        # Stores the bin of the corresponding button
+        self.gpio_button = gpio_button
+
+        # Stores the bin of the corresponding led
+        self.gpio_led = gpio_led
 
         # Levels store the current meter value (must be enabled in Totalmix
         # OSC preferences). This is either a single float or a dict, depending
@@ -377,7 +380,8 @@ class Outputs():
                 name=output["name"],
                 address=output["address"],
                 stereo=output["stereo"],
-                button=output["button"]
+                gpio_button=output["gpio_button"],
+                gpio_led=output["gpio_led"]
             )
             self.faders.append(o)
 
