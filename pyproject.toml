@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "cineface"
+version = "0.1.0"
+description = ""
+authors = ["David Huss <dh@atoav.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+asyncio = "^3.4.3"
+python-osc = "^1.7.4"
+gpiozero = "^1.5.1"
+toml = "^0.10.2"
+appdirs = "^1.4.4"
+importlib-metadata = "^3.3.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.scripts]
+cineface = "cineface.main:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
