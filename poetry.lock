@@ -163,6 +163,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "rpi.gpio"
+version = "0.7.0"
+description = "A module to control Raspberry Pi GPIO channels"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -193,7 +201,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "0d300dd7289bdd1dbc9b4f6c3428cee3dd2fb9fedbf88cc00c57cba739fc688e"
+content-hash = "d148b6842b9d7e942c51c01fa807b7382385b0c030b1cadcff8016884aadfc18"
 
 [metadata.files]
 appdirs = [
@@ -256,6 +264,9 @@ pytest = [
 ]
 python-osc = [
     {file = "python-osc-1.7.4.tar.gz", hash = "sha256:760f9d7a8c586a5347eb309336df08b308892cc6ca558b0874e7594bcb07d032"},
+]
+"rpi.gpio" = [
+    {file = "RPi.GPIO-0.7.0.tar.gz", hash = "sha256:7424bc6c205466764f30f666c18187a0824077daf20b295c42f08aea2cb87d3f"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},

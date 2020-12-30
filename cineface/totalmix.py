@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from cineface.helpers import fit, clamp, lerp
+from cineface.helpers import fit, clamp, lerp, nothing
+from cineface.hardware import LedButton
 
 # db to fadercurve lookup table (pulled by sweeping fader via code)
 FADER_CURVE = [
@@ -202,11 +203,22 @@ class Output():
         # Outputs can be either Stereo or Mono
         self.stereo = stereo
 
+        # Client used to communicate with Totalmix via OSC, register first
+        self.client = None
+
         # Stores the bin of the corresponding button
-        self.gpio_button = gpio_button
+        self.gpio_button = int(gpio_button)
 
         # Stores the bin of the corresponding led
-        self.gpio_led = gpio_led
+        self.gpio_led = int(gpio_led)
+
+        # Create a button that unmutes/mutes this output
+        self.button = LedButton(
+            button_pin=self.gpio_button, 
+            led_pin=self.gpio_led,
+            mute=self.set_mute,
+            unmute=self.set_unmute
+        )
 
         # Levels store the current meter value (must be enabled in Totalmix
         # OSC preferences). This is either a single float or a dict, depending
@@ -221,7 +233,6 @@ class Output():
 
         # Stores the string for the display value (e.g. "6 dB" or "-oo")
         self.display_value = None
-
 
     def as_table(self) -> str:
         label = "{}:".format(self.name)
@@ -242,6 +253,12 @@ class Output():
 
     def __repr__(self):
         return self.address
+
+    def register_client(self, client):
+        """
+        Registers a given client with the output
+        """
+        self.client = client
 
     @property
     def number(self) -> int:
@@ -296,6 +313,9 @@ class Output():
             self.display_value = value
         elif addr == self.address_mute:
             self.mute = value == 1.0
+            print("Updating mute status: {} - {}".format(addr, value))
+            # Also notify the button/led of the change in status
+            self.button.update_led(self.mute)
         elif addr in self.address_levels:
             if self.stereo:
                 if addr.endswith("Left"):
@@ -306,56 +326,55 @@ class Output():
                 if addr.endswith("Left"):
                     self.levels = value
 
-    def set_volume(self, client, volume: float):
+    def set_volume(self, volume: float):
         """
         Set the volume of the output to a value between 0.0 and 1.0
         """
-        # Select output bus
-        client.send_message("/setBankStart", 1.0)
-        client.send_message("/1/busOutput", 1.0)
+        self.initialize()
 
         # Clamp volume to range witrhin 0.0 and 1.0
         volume = clamp(volume, 0.0, 1.0)
 
         # Send message
-        client.send_message(self.address, volume)
+        self.client.send_message(self.address, volume)
 
-    def set_mute(self, client):
+    def set_mute(self):
         """
         Mute the output
         """
-        # Select output bus
-        client.send_message("/setBankStart", 1.0)
-        client.send_message("/1/busOutput", 1.0)
+        self.initialize()
 
         # Send mute message
-        client.send_message(self.address_mute, 1.0)
+        self.client.send_message(self.address_mute, 1.0)
 
-    def set_unmute(self, client):
+    def set_unmute(self):
         """
         Mute the output
         """
-        # Select output bus
-        client.send_message("/setBankStart", 1.0)
-        client.send_message("/1/busOutput", 1.0)
+        self.initialize()
 
         # Send unmute message
-        client.send_message(self.address_mute, 0.0)
+        self.client.send_message(self.address_mute, 0.0)
 
-    def toggle_mute(self, client):
+    def toggle_mute(self):
         """
         Mute the output if it was unmuted before
         Unmute the output if it was muted before
         """
-        # Select output bus
-        client.send_message("/setBankStart", 1.0)
-        client.send_message("/1/busOutput", 1.0)
+        self.initialize()
 
         # Send mute/unmute message depending on previous state
         if self.mute:
-            client.send_message(self.address_mute, 1.0)
+            print("toggling mute OFF")
+            self.set_unmute()
         else:
-            client.send_message(self.address_mute, 0.0)
+            print("toggling mute ON")
+            self.set_mute()
+
+    def initialize(self):
+        # Select output bus
+        self.client.send_message("/setBankStart", 1.0)
+        self.client.send_message("/1/busOutput", 1.0)
 
 
 
@@ -367,8 +386,6 @@ class Outputs():
     def __init__(self):
         self.faders = []
         self.pre_mute_states = []
-        self.pre_solo_states = []
-        self.solo_active = False
 
     def __iter__(self):
         for output in self.faders:
@@ -387,7 +404,11 @@ class Outputs():
 
         return self
 
-    def mute_all(self, client):
+    def register_client(self, client):
+        for output in self.faders:
+            output.register_client(client)
+
+    def mute_all(self):
         """
         Mute all output channels and store the formerly muted state.
         After this you can either run undo_mute_all() or unmute_all(),
@@ -400,9 +421,9 @@ class Outputs():
                 self.pre_mute_states[i] = output.mute
 
                 # Second mute the output
-                output.set_mute(client)
+                output.set_mute()
 
-    def undo_mute_all(self, client):
+    def undo_mute_all(self):
         """
         Undo mute_all and return back to the state before (formerly muted outputs
         will remain muted, formerly unmuted ones will be unmuted again)
@@ -410,14 +431,14 @@ class Outputs():
         for i, output in enumerate(self.faders):
             # Unmute Outputs only if they have been previously unmuted
             if self.pre_mute_states[i]:
-                output.set_unmute(client)
+                output.set_unmute()
 
-    def unmute_all(self, client):
+    def unmute_all(self):
         """
         Unmute all output channels (regardless of previous state)
         """
         for output in self.faders:
-            output.set_unmute(client)
+            output.set_unmute(self.client)
 
     def invert_mutes(self, client):
         """
@@ -426,23 +447,23 @@ class Outputs():
         for output in self.faders:
             output.toggle_mute(client)
 
-    def dim(self, client):
+    def dim(self):
         """
         Dim the volume of all outputs by -6db
         """
         for i, output in enumerate(self.faders):
-            output.set_volume(client, output.volume * 0.7746)
+            output.set_volume(output.volume * 0.7746)
 
-    def undim(self, client):
+    def undim(self):
         """
         Raise the volume of all outputs by +6db
         """
         for i, output in enumerate(self.faders):
-            output.set_volume(client, output.volume * 1/0.7746)
+            output.set_volume(output.volume * 1/0.7746)
 
-    def silence(self, client):
+    def silence(self):
         """
         Set all outputs to 0.0
         """
         for i, output in enumerate(self.faders):
-            output.set_volume(client, 0.0)
+            output.set_volume(0.0)

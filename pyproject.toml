@@ -8,10 +8,11 @@ authors = ["David Huss <dh@atoav.com>"]
 python = "^3.8"
 asyncio = "^3.4.3"
 python-osc = "^1.7.4"
-gpiozero = "^1.5.1"
 toml = "^0.10.2"
 appdirs = "^1.4.4"
 importlib-metadata = "^3.3.0"
+"RPi.GPIO" = "^0.7.0"
+gpiozero = "^1.5.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

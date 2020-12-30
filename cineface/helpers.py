@@ -31,3 +31,9 @@ def fit(value, min1, max1, min2, max2):
 
     # Convert the 0-1 range into a value in the right range.
     return min2 + (scaled * span2)
+
+def nothing():
+    """
+    Do nothing
+    """
+    pass

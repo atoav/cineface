@@ -27,6 +27,9 @@ config = init_config()
 
 # Create Outputs Collection
 outputs = Outputs().from_config(config)
+print("============== Setup done ===============\n")
+
+
 
 
 
@@ -45,7 +48,7 @@ def update_outputs(addr, value):
 
 
 
-async def loop(client):
+async def loop():
     """
     Asynchronous Loop reads buttons, faders etc and send messages to totalmix
     """
@@ -69,6 +72,7 @@ async def init_main():
     Asynchronous main, to be called from main()
     """
     global config
+    global outputs
 
     print("Setting up dispatcher")
     dispatcher = Dispatcher()
@@ -78,6 +82,7 @@ async def init_main():
     client = udp_client.SimpleUDPClient(config["Client"]["ip"], config["Client"]["port"])
     client.send_message("/setBankStart", 1.0)
     client.send_message("/1/busOutput", 1.0)
+    outputs.register_client(client)
 
     print("Starting Server at {}:{}".format(config["Server"]["ip"], config["Server"]["port"]))
     server = AsyncIOOSCUDPServer((config["Server"]["ip"], config["Server"]["port"]), dispatcher, asyncio.get_event_loop())
@@ -86,7 +91,7 @@ async def init_main():
     transport, protocol = await server.create_serve_endpoint()
 
     print("Listening...")
-    await loop(client)
+    await loop()
 
     transport.close()
 
