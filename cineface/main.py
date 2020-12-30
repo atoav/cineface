@@ -13,7 +13,7 @@ from gpiozero import Button
 from cineface.config import Config, init_config
 from cineface.helpers import fit, clamp, lerp
 from cineface.totalmix import Output, Outputs
-from cineface.display import test
+from cineface.display import VolumeDisplay
 
 
 VERSION = importlib_metadata.metadata(__package__)["Version"]
@@ -28,9 +28,10 @@ config = init_config()
 
 # Create Outputs Collection
 outputs = Outputs().from_config(config)
+volume_display = VolumeDisplay().from_config(config)
 print("============== Setup done ===============\n")
 
-test()
+
 
 
 
@@ -42,6 +43,7 @@ def update_outputs(addr, value):
     sent to this script via OSC should go here
     """
     global outputs
+    global volume_display
 
     for output in outputs:
         if output.is_valid_address(addr):
@@ -55,14 +57,20 @@ async def loop():
     Asynchronous Loop reads buttons, faders etc and send messages to totalmix
     """
     global outputs
-    value = 0.0
-    # outputs.faders[0].set_volume(client, 0.0)
+    global volume_display
+
+    value = -66.0
 
     while True:
         # Do things here, eg sweeping a fader:
         # client.send_message("/1/volume4", value)
 
-        # value += 0.01
+        value += 0.1
+        volume_display.update(value)
+        volume_display.draw()
+        print(value)
+        if value > 6.0:
+            value = -66.0
         # outputs.faders[0].set_volume(client, value)
         # print(outputs.faders[0].display_value, outputs.faders[0].volume)
 

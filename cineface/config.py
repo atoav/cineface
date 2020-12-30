@@ -27,6 +27,14 @@ port = 7001
 ip = "0.0.0.0"
 port = 9001
 
+[VolumeDisplay]
+# Find this address using i2cdetect -y 1
+i2c_address = "0x3C"
+i2c_port = 1
+font = "fonts/Inter-Thin.ttf"
+size = 50
+
+
 # You can add more outputs or leave some out if you like by 
 # adding/removing [[Output]] blocks
 

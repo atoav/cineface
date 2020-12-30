@@ -313,7 +313,6 @@ class Output():
             self.display_value = value
         elif addr == self.address_mute:
             self.mute = value == 1.0
-            print("Updating mute status: {} - {}".format(addr, value))
             # Also notify the button/led of the change in status
             self.button.update_led(self.mute)
         elif addr in self.address_levels:
