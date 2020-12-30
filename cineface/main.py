@@ -13,6 +13,7 @@ from gpiozero import Button
 from cineface.config import Config, init_config
 from cineface.helpers import fit, clamp, lerp
 from cineface.totalmix import Output, Outputs
+from cineface.display import test
 
 
 VERSION = importlib_metadata.metadata(__package__)["Version"]
@@ -29,6 +30,7 @@ config = init_config()
 outputs = Outputs().from_config(config)
 print("============== Setup done ===============\n")
 
+test()
 
 
 

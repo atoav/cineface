@@ -13,6 +13,8 @@ appdirs = "^1.4.4"
 importlib-metadata = "^3.3.0"
 "RPi.GPIO" = "^0.7.0"
 gpiozero = "^1.5.1"
+"luma.core" = "^2.2.0"
+"luma.oled" = "^3.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
