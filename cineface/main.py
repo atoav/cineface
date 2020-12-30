@@ -13,7 +13,7 @@ from gpiozero import Button
 from cineface.config import Config, init_config
 from cineface.helpers import fit, clamp, lerp
 from cineface.totalmix import Output, Outputs
-from cineface.display import VolumeDisplay
+from cineface.display import VolumeDisplay, LevelDisplay
 
 
 VERSION = importlib_metadata.metadata(__package__)["Version"]
@@ -28,7 +28,10 @@ config = init_config()
 
 # Create Outputs Collection
 outputs = Outputs().from_config(config)
+
+# Create Displays
 volume_display = VolumeDisplay().from_config(config)
+level_display  = LevelDisplay().from_config(config)
 print("============== Setup done ===============\n")
 
 
@@ -51,30 +54,23 @@ def update_outputs(addr, value):
             # print(output.as_table())
 
 
-
 async def loop():
     """
     Asynchronous Loop reads buttons, faders etc and send messages to totalmix
     """
     global outputs
     global volume_display
-
-    value = -66.0
+    global level_display
 
     while True:
-        # Do things here, eg sweeping a fader:
-        # client.send_message("/1/volume4", value)
-
-        value += 0.1
-        volume_display.update(value)
+        # Update & Draw the levels display (if it is activated in the config)
+        volume_display.update(outputs.volume_db, outputs.has_uniform_volume)
         volume_display.draw()
-        print(value)
-        if value > 6.0:
-            value = -66.0
-        # outputs.faders[0].set_volume(client, value)
-        # print(outputs.faders[0].display_value, outputs.faders[0].volume)
 
-        await asyncio.sleep(0.1)
+        # Draw the levels display (if it is activated in the config)
+        level_display.draw(outputs)
+
+        await asyncio.sleep(0.01)
 
 
 async def init_main():

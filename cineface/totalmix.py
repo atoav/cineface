@@ -187,9 +187,12 @@ class Output():
     """
     Represents a single RME Totalmix Output channel
     """
-    def __init__(self, name: str, address: str, stereo=False, gpio_button=None, gpio_led=None):
+    def __init__(self, name: str, short: str, address: str, stereo=False, gpio_button=None, gpio_led=None):
         # Name is an arbitrary string for reference
         self.name = name
+
+        # Short Name, used on Levels display
+        self.short = short
 
         # Address is the OSC Address (e.g. /1/volume4)
         self.address = address
@@ -394,6 +397,7 @@ class Outputs():
         for output in config["Output"]:
             o = Output(
                 name=output["name"],
+                short=output["short"],
                 address=output["address"],
                 stereo=output["stereo"],
                 gpio_button=output["gpio_button"],
@@ -466,3 +470,44 @@ class Outputs():
         """
         for i, output in enumerate(self.faders):
             output.set_volume(0.0)
+
+    @property
+    def volume(self) -> float:
+        """
+        Return highest volume of all outputs in fader scale (0.0 to 1.0)
+        """
+        # Get a list of volumes
+        volumes = [o.volume for o in self.faders if o.volume is not None and not o.mute]
+
+        # Make sure we actually have volumes to process
+        if len(volumes) >= 1:
+            biggest_volume = max(volumes)
+            return biggest_volume
+        else:
+            return -9000.0
+
+    @property
+    def volume_db(self) -> float:
+        """
+        Return highest volume of all outputs in db scale (-65.0 to +6.0)
+        """
+        return fader_to_db(self.volume)
+
+    @property
+    def has_uniform_volume(self) -> bool:
+        """
+        Return true if all volumes are the same, false otherwise
+        This is used to signify to the user that some outputs might in fact be
+        at a different volume than expected
+        """
+        # Get a list of volumes (exclude headphones here because they are allowed
+        # to be at a different level than the rest). Ignore muted outputs because 
+        # they dont matter
+        volumes = [o.volume for o in self.faders if o.volume is not None and not o.name.lower().startswith("headphones") and not o.mute]
+        # Make sure we actually have volumes to process
+        if len(volumes) >= 1:
+            biggest_volume = max(volumes)
+            lowest_volume = min(volumes)
+            return biggest_volume == lowest_volume
+        else:
+            return True

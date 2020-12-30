@@ -28,18 +28,27 @@ ip = "0.0.0.0"
 port = 9001
 
 [VolumeDisplay]
+active = true
 # Find this address using i2cdetect -y 1
 i2c_address = "0x3C"
 i2c_port = 1
 font = "fonts/Inter-Thin.ttf"
 size = 50
 
+[LevelDisplay]
+active = true
+# Find this address using i2cdetect -y 1
+i2c_address = "0x3D"
+i2c_port = 1
+left  = ["speakers", "center", "lfe", "rear"]
+right = ["headphones"]
 
 # You can add more outputs or leave some out if you like by 
 # adding/removing [[Output]] blocks
 
 [[Output]]
 name = "headphones"
+short = "HP"
 address = "/1/volume5"
 stereo = true
 gpio_button = 25
@@ -47,6 +56,7 @@ gpio_led = 24
 
 [[Output]]
 name = "speakers"
+short = "L/R"
 address = "/1/volume1"
 stereo = true
 gpio_button = 10
@@ -54,6 +64,7 @@ gpio_led = 9
 
 [[Output]]
 name = "center"
+short = "C"
 address = "/1/volume2"
 stereo = false
 gpio_button = 14
@@ -61,6 +72,7 @@ gpio_led = 15
 
 [[Output]]
 name = "lfe"
+short = "LF"
 address = "/1/volume3"
 stereo = false
 gpio_button = 18
@@ -68,6 +80,7 @@ gpio_led = 17
 
 [[Output]]
 name = "rear"
+short = "Ls/Rs"
 address = "/1/volume4"
 stereo = true
 gpio_button = 23
