@@ -51,18 +51,15 @@ async def loop(client):
     """
     global outputs
     value = 0.0
-    outputs.faders[0].set_volume(client, 0.0)
+    # outputs.faders[0].set_volume(client, 0.0)
 
     while True:
         # Do things here, eg sweeping a fader:
         # client.send_message("/1/volume4", value)
 
-        value += 0.01
-        outputs.faders[0].set_volume(client, value)
-        print(outputs.faders[0].display_value, outputs.faders[0].volume)
-
-        if value > 1.0:
-            exit()
+        # value += 0.01
+        # outputs.faders[0].set_volume(client, value)
+        # print(outputs.faders[0].display_value, outputs.faders[0].volume)
 
         await asyncio.sleep(0.1)
 

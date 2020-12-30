@@ -34,31 +34,36 @@ port = 9001
 name = "headphones"
 address = "/1/volume5"
 stereo = true
-button = 1
+gpio_button = 25
+gpio_led = 24
 
 [[Output]]
 name = "speakers"
 address = "/1/volume1"
 stereo = true
-button = 2
+gpio_button = 10
+gpio_led = 9
 
 [[Output]]
 name = "center"
 address = "/1/volume2"
 stereo = false
-button = 3
+gpio_button = 14
+gpio_led = 15
 
 [[Output]]
 name = "lfe"
 address = "/1/volume3"
 stereo = false
-button = 4
+gpio_button = 18
+gpio_led = 17
 
 [[Output]]
 name = "rear"
 address = "/1/volume4"
 stereo = true
-button = 5
+gpio_button = 23
+gpio_led = 22
 
 """
 
