@@ -1,3 +1,5 @@
+
+
 # cineface
 
 Cineface is a Hardware OSC Controller for the RME Totalmix outputs.
@@ -24,13 +26,15 @@ It is meant to run on a raspberry pi 3 and look a bit like this:
 - [x] Receiving OSC from TotalMix (reacting to UI change) via Network
 - [x] Sending OSC to TotalMix (remotely changing the UI) via Network
 - [x] Button/LED Implementation
-- [ ] db-Display Implementation
-- [ ] levels-Display Implementation
+- [x] db-Display Implementation
+- [x] levels-Display Implementation
 - [ ] Potentiometer (ADC) Implementation
 - [ ] Potentiometer (Motor) Implementation
 - [ ] Building a Case
 
+![](images/levels_display.jpg)
 
+^ Working levels display. Note that the Lfe channel is muted. Update rate is surprisingly good.
 
 ## Raspberry Pi Pinout
 
@@ -90,5 +94,47 @@ I decided on using a MCP3001 which is a 1-channel 10bit ADC with SPI connector:
 
 ## Displays
 
-Check out [this library](https://github.com/bitbank2/ss_oled) which allows you to drive multiple I2C displays from the same pins
+Check out [this library](https://github.com/bitbank2/ss_oled) which allows you to drive multiple I2C displays from the same pins. For this we have to know the addresses of the displays.
 
+Make sure I2C is enabled in `sudo raspi-config`
+
+Install i2c-tools:
+
+```bash
+apt install i2c-tools
+```
+
+Then run `i2cdetect -y 1` to get the I2C address of the connected display:
+
+```
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- 3c -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+```
+
+Install dependencies so `luma.core` and `luma.oled` are happy:
+
+```bash
+apt install python3-dev libffi-dev libssl-dev python3-pil libjpeg-dev zlib1g-dev libfreetype6-dev liblcms2-dev libopenjp2-7 libtiff5 -y
+# and
+apt install python3-rpi.gpio python3-pip -y
+```
+
+To speed up I2C edit `/boot/config.txt` and add:
+
+```
+dtparam=i2c_baudrate=1000000
+```
+
+### Address Change
+
+In my case I had to cut the trace for Pin 15 and solder it to Vcc:
+
+![](images/i2c_address_change_oled.jpg)
+
+Many OLED-Displays have actually resistors/jumpers to change the address, mine didn't. If you have the same issue, look here: https://github.com/ThingPulse/esp8266-oled-ssd1306/issues/138
