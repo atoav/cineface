@@ -61,6 +61,7 @@ async def loop():
     global outputs
     global volume_display
     global level_display
+    frames = 0
 
     while True:
         # Update & Draw the levels display (if it is activated in the config)
@@ -70,6 +71,7 @@ async def loop():
         # Draw the levels display (if it is activated in the config)
         level_display.draw(outputs)
 
+        frames += 1
         await asyncio.sleep(0.01)
 
 

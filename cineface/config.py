@@ -22,29 +22,46 @@ EXAMPLE_CONFIG = """# ======= CINEFACE CONFIGURATION FILE =======
 ip = "192.168.178.81"
 port = 7001
 
+
+
 [Server]
 # Address/Port for the OSC Server
 ip = "0.0.0.0"
 port = 9001
 
+
+
 [VolumeDisplay]
 active = true
+
 # Find this address using i2cdetect -y 1
 i2c_address = "0x3C"
 i2c_port = 1
 font = "fonts/Inter-Thin.ttf"
 size = 50
 
+
+
 [LevelDisplay]
 active = true
+
 # Find this address using i2cdetect -y 1
 i2c_address = "0x3D"
 i2c_port = 1
+
+# You can align outputs to the left or right using these two lists
 left  = ["speakers", "center", "lfe", "rear"]
 right = ["headphones"]
 
+# Supply a list of floats here, if the list = [] don't draw horizontal bars
+db_markers = [0.0, -6.0, -12.0, -18.0, -24.0, -32.0, -38.0, -44.0]
+
+
+
 # You can add more outputs or leave some out if you like by 
 # adding/removing [[Output]] blocks
+# short is used in the levels display so it must be <5 chars for stereo channels
+# and <3 chars for mono channels
 
 [[Output]]
 name = "headphones"

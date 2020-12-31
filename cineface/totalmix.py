@@ -264,6 +264,10 @@ class Output():
         self.client = client
 
     @property
+    def mono(self) -> bool:
+        return not self.stereo
+
+    @property
     def number(self) -> int:
         """
         Returns the number of the channel (e.g. 4)
