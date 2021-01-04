@@ -28,8 +28,12 @@ It is meant to run on a raspberry pi 3 and look a bit like this:
 - [x] Button/LED Implementation
 - [x] db-Display Implementation
 - [x] levels-Display Implementation
+- [x] Run both displays at the same time
+- [ ] Potentiometer (Motor) Implementation using L293D ic
+- [ ] Motor follows remote changes successfully
 - [ ] Potentiometer (ADC) Implementation
-- [ ] Potentiometer (Motor) Implementation
+- [ ] TotalMix follows Potentiometer successfully
+- [ ] TotalMix restarts are handled correctly (cineface restarts itself after certain time of no signals etc)
 - [ ] Building a Case
 
 ![](images/levels_display.jpg)
